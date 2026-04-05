@@ -8,7 +8,7 @@ import {
   Filter,
   Calendar,
   Download,
-  BarChart3, // Add this import
+  BarChart3,
   Wallet,
   Settings,
   LogOut,
@@ -39,6 +39,9 @@ import TransactionFilters from "./components/Transactions/TransactionFilters";
 import TransactionForm from "./components/Transactions/TransactionForm";
 import InsightsSection from "./components/Insights/InsightsSection";
 import RoleSwitcher from "./components/Common/RoleSwitcher";
+import MonthlyUpdates from "./components/Dashboard/MonthlyUpdates";
+import SettingsPanel from "./components/Settings/SettingsPanel";
+import Favicon from "./components/Common/Favicon";
 
 const DashboardContent = () => {
   const {
@@ -60,6 +63,7 @@ const DashboardContent = () => {
     const handleScroll = () => {
       const sections = [
         "dashboard",
+        "monthly-updates",
         "transactions",
         "income",
         "expenses",
@@ -134,7 +138,7 @@ const DashboardContent = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-                      Welcome John!
+                      Welcome John
                       <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
                     </h1>
                     <p className="text-blue-100">
@@ -144,7 +148,7 @@ const DashboardContent = () => {
                   <div className="hidden md:block">
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                       <p className="text-sm">Current Period</p>
-                      <p className="font-semibold">March 2024</p>
+                      <p className="font-semibold">April 2025</p>
                     </div>
                   </div>
                 </div>
@@ -161,7 +165,10 @@ const DashboardContent = () => {
               </div>
 
               {/* Charts Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <div
+                id="pie-chart-section"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"
+              >
                 <div className="transform hover:scale-[1.02] transition-all duration-300">
                   <BalanceTrend />
                 </div>
@@ -179,8 +186,13 @@ const DashboardContent = () => {
               </div>
             </section>
 
-            {/* Transactions Section */}
-            <section id="transactions" className="scroll-mt-20">
+            {/* Monthly Updates Section - Separate section with gap */}
+            <section id="monthly-updates" className="scroll-mt-20 mt-12">
+              <MonthlyUpdates />
+            </section>
+
+            {/* Transactions Section - Added margin-top for gap */}
+            <section id="transactions" className="scroll-mt-20 mt-12">
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
                 <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white rounded-t-2xl">
                   <div className="flex justify-between items-center">
@@ -302,7 +314,7 @@ const DashboardContent = () => {
               </div>
             </section>
 
-            {/* Expenses Section with Pie Chart */}
+            {/* Expenses Section */}
             <section id="expenses" className="scroll-mt-20 mt-12">
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6">
@@ -342,7 +354,6 @@ const DashboardContent = () => {
                       <div className="space-y-3">
                         {(() => {
                           const spendingData = getSpendingByCategory();
-                          // Convert to array and sort safely
                           const categoriesArray = Object.entries(
                             spendingData || {},
                           );
@@ -550,6 +561,9 @@ const DashboardContent = () => {
                 </div>
               </div>
             </section>
+            <section id="settings" className="scroll-mt-20 mt-12 mb-8">
+              <SettingsPanel />
+            </section>
             {/* Transaction Form Modal */}
             {showForm && (
               <TransactionForm
@@ -570,9 +584,12 @@ const DashboardContent = () => {
 
 function App() {
   return (
-    <AppProvider>
-      <DashboardContent />
-    </AppProvider>
+    <>
+      <Favicon />
+      <AppProvider>
+        <DashboardContent />
+      </AppProvider>
+    </>
   );
 }
 

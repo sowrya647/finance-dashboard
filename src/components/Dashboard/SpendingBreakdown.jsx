@@ -6,8 +6,12 @@ import { useApp } from '../../context/AppContext';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const SpendingBreakdown = () => {
-  const { getSpendingByCategory } = useApp();
-  const spendingData = getSpendingByCategory();
+  const { getSpendingByCategory, getSpendingByCategoryForMonth, selectedMonth } = useApp();
+  
+  // Use month-specific data if a month is selected
+  const spendingData = selectedMonth 
+    ? getSpendingByCategoryForMonth(selectedMonth.year, selectedMonth.month)
+    : getSpendingByCategory();
   
   const categories = Object.keys(spendingData);
   const amounts = Object.values(spendingData);
@@ -58,13 +62,22 @@ const SpendingBreakdown = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Spending Breakdown</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Spending Breakdown</h3>
+        {selectedMonth && (
+          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+            {selectedMonth.month} {selectedMonth.year}
+          </span>
+        )}
+      </div>
       <div className="h-80">
         {categories.length > 0 ? (
           <Pie data={data} options={options} />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
-            No spending data available
+            {selectedMonth 
+              ? `No spending data available for ${selectedMonth.month} ${selectedMonth.year}`
+              : 'No spending data available'}
           </div>
         )}
       </div>

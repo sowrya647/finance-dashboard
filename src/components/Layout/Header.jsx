@@ -6,6 +6,31 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const { role } = useApp();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
+  // Function to scroll to settings section
+  const scrollToSettings = () => {
+    const settingsSection = document.getElementById('settings');
+    if (settingsSection) {
+      settingsSection.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+    setShowProfileMenu(false);
+  };
+
+  // Function to scroll to dashboard (optional - for logo click)
+  const scrollToDashboard = () => {
+    const dashboardSection = document.getElementById('dashboard');
+    if (dashboardSection) {
+      dashboardSection.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  };
+
   return (
     <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200 sticky top-0 z-20">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -22,6 +47,15 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
           {/* Right section */}
           <div className="flex items-center space-x-2">
+            {/* Settings Button - Added here */}
+            <button 
+              onClick={scrollToSettings}
+              className="relative p-2 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-300"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
             {/* Notifications */}
             <button className="relative p-2 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-300">
               <Bell className="w-5 h-5" />
@@ -59,7 +93,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                     </div>
                   </div>
                   <div className="py-2">
-                    <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <button 
+                      onClick={scrollToSettings}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
                       <Settings className="w-4 h-4" />
                       Settings
                     </button>

@@ -19,12 +19,23 @@ import { format } from 'date-fns';
 import { useApp } from '../../context/AppContext';
 
 const TransactionList = ({ onEdit }) => {
-  const { role, getFilteredTransactions, deleteTransaction } = useApp();
+  const { 
+    role, 
+    getFilteredTransactions, 
+    getTransactionsBySelectedMonth, 
+    selectedMonthFilter,
+    deleteTransaction 
+  } = useApp();
+  
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const transactions = getFilteredTransactions();
+  
+  // Use month-filtered transactions if a month is selected
+  const transactions = selectedMonthFilter 
+    ? getTransactionsBySelectedMonth() 
+    : getFilteredTransactions();
 
   const calculateTotal = (type) => {
     return transactions
@@ -39,19 +50,17 @@ const TransactionList = ({ onEdit }) => {
 
   const handleDelete = async (id) => {
     setDeletingId(id);
-    // Simulate a small delay for better UX
     setTimeout(() => {
       deleteTransaction(id);
       setDeletingId(null);
       setDeleteConfirm(null);
-      // Close expanded view if deleted
       if (expandedTransaction === id) {
         setExpandedTransaction(null);
       }
     }, 300);
   };
 
-  const exportData = (format) => {
+  const exportData = (formatType) => {
     const data = transactions.map(t => ({
       Date: format(new Date(t.date), 'yyyy-MM-dd'),
       Description: t.description,
@@ -60,7 +69,7 @@ const TransactionList = ({ onEdit }) => {
       Type: t.type
     }));
 
-    if (format === 'csv') {
+    if (formatType === 'csv') {
       const headers = ['Date', 'Description', 'Category', 'Amount', 'Type'];
       const csvContent = [
         headers.join(','),
@@ -74,7 +83,7 @@ const TransactionList = ({ onEdit }) => {
       a.download = `transactions_${format(new Date(), 'yyyy-MM-dd')}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    } else if (format === 'json') {
+    } else if (formatType === 'json') {
       const jsonStr = JSON.stringify(data, null, 2);
       const blob = new Blob([jsonStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -93,9 +102,17 @@ const TransactionList = ({ onEdit }) => {
         <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-4 shadow-inner">
           <DollarSign className="w-10 h-10 text-gray-400" />
         </div>
-        <p className="text-gray-500 text-lg font-medium">No transactions found</p>
-        <p className="text-gray-400 text-sm mt-1">Add your first transaction to get started</p>
-        {role === 'admin' && (
+        <p className="text-gray-500 text-lg font-medium">
+          {selectedMonthFilter 
+            ? `No transactions found for ${selectedMonthFilter.month} ${selectedMonthFilter.year}`
+            : 'No transactions found'}
+        </p>
+        <p className="text-gray-400 text-sm mt-1">
+          {selectedMonthFilter 
+            ? 'Try selecting a different month or clear the filter'
+            : 'Add your first transaction to get started'}
+        </p>
+        {role === 'admin' && !selectedMonthFilter && (
           <button
             onClick={() => onEdit(null)}
             className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -110,6 +127,21 @@ const TransactionList = ({ onEdit }) => {
 
   return (
     <div className="space-y-4">
+      {/* Month Filter Indicator */}
+      {selectedMonthFilter && (
+        <div className="bg-blue-50 rounded-xl p-3 border border-blue-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-blue-600" />
+            <span className="text-sm text-blue-700">
+              Showing transactions for: <strong>{selectedMonthFilter.month} {selectedMonthFilter.year}</strong>
+            </span>
+            <span className="text-xs text-blue-500">
+              ({transactions.length} transactions)
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Stats Summary with Savings Rate */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 hover:shadow-md transition-shadow">
@@ -119,7 +151,9 @@ const TransactionList = ({ onEdit }) => {
               <p className="text-2xl font-bold text-green-700">
                 ${totalIncome.toLocaleString()}
               </p>
-              <p className="text-xs text-green-500 mt-1">All time</p>
+              <p className="text-xs text-green-500 mt-1">
+                {selectedMonthFilter ? 'This month' : 'All time'}
+              </p>
             </div>
             <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shadow-lg">
               <TrendingUp className="w-5 h-5 text-white" />
@@ -134,7 +168,9 @@ const TransactionList = ({ onEdit }) => {
               <p className="text-2xl font-bold text-red-700">
                 ${totalExpenses.toLocaleString()}
               </p>
-              <p className="text-xs text-red-500 mt-1">All time</p>
+              <p className="text-xs text-red-500 mt-1">
+                {selectedMonthFilter ? 'This month' : 'All time'}
+              </p>
             </div>
             <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center shadow-lg">
               <TrendingDown className="w-5 h-5 text-white" />
@@ -169,6 +205,8 @@ const TransactionList = ({ onEdit }) => {
           </div>
         </div>
       </div>
+
+
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
