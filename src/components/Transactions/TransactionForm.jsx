@@ -1,5 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, TrendingUp, TrendingDown, DollarSign, Tag, Calendar, Save, ArrowRight } from 'lucide-react';
+import { 
+  X, 
+  Plus, 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign, 
+  Tag, 
+  Calendar, 
+  Save, 
+  ArrowRight,
+  Utensils,
+  Briefcase,
+  TrendingUp as InvestmentIcon,
+  Clapperboard,
+  Lightbulb,
+  Heart,
+  ShoppingBag,
+  Home,
+  Car,
+  Gift,
+  Coffee
+} from 'lucide-react';
 import { categories } from '../../data/mockData';
 
 const TransactionForm = ({ transaction, onSubmit, onClose }) => {
@@ -38,7 +59,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose }) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 500));
     
     onSubmit({
@@ -51,15 +71,38 @@ const TransactionForm = ({ transaction, onSubmit, onClose }) => {
 
   const getCategoryIcon = (category) => {
     const icons = {
-      'Food': '🍔',
-      'Salary': '💰',
-      'Freelance': '💻',
-      'Investment': '📈',
-      'Entertainment': '🎬',
-      'Utilities': '💡',
-      'Health': '🏥'
+      'Food': <Utensils className="w-4 h-4" />,
+      'Salary': <Briefcase className="w-4 h-4" />,
+      'Freelance': <Briefcase className="w-4 h-4" />,
+      'Investment': <InvestmentIcon className="w-4 h-4" />,
+      'Entertainment': <Clapperboard className="w-4 h-4" />,
+      'Utilities': <Lightbulb className="w-4 h-4" />,
+      'Health': <Heart className="w-4 h-4" />,
+      'Shopping': <ShoppingBag className="w-4 h-4" />,
+      'Rent': <Home className="w-4 h-4" />,
+      'Transport': <Car className="w-4 h-4" />,
+      'Gifts': <Gift className="w-4 h-4" />,
+      'Dining': <Coffee className="w-4 h-4" />
     };
-    return icons[category] || '📦';
+    return icons[category] || <Tag className="w-4 h-4" />;
+  };
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Food': 'bg-orange-100 text-orange-600',
+      'Salary': 'bg-green-100 text-green-600',
+      'Freelance': 'bg-purple-100 text-purple-600',
+      'Investment': 'bg-blue-100 text-blue-600',
+      'Entertainment': 'bg-pink-100 text-pink-600',
+      'Utilities': 'bg-yellow-100 text-yellow-600',
+      'Health': 'bg-red-100 text-red-600',
+      'Shopping': 'bg-indigo-100 text-indigo-600',
+      'Rent': 'bg-cyan-100 text-cyan-600',
+      'Transport': 'bg-teal-100 text-teal-600',
+      'Gifts': 'bg-rose-100 text-rose-600',
+      'Dining': 'bg-amber-100 text-amber-600'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-600';
   };
 
   return (
@@ -141,7 +184,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose }) => {
             </div>
           </div>
           
-          {/* Category Field with Icons */}
+          {/* Category Field with Icons and Colors */}
           <div className="group">
             <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-blue-500" />
@@ -153,11 +196,29 @@ const TransactionForm = ({ transaction, onSubmit, onClose }) => {
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none cursor-pointer"
             >
               {categories.filter(c => c !== 'All').map(category => (
-                <option key={category} value={category} className="py-2">
-                  {getCategoryIcon(category)} {category}
+                <option key={category} value={category}>
+                  {category}
                 </option>
               ))}
             </select>
+            
+            {/* Selected Category Preview */}
+            <div className="mt-3 p-3 bg-gray-50 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${getCategoryColor(formData.category)}`}>
+                    {getCategoryIcon(formData.category)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Selected Category</p>
+                    <p className="text-xs text-gray-500">{formData.category}</p>
+                  </div>
+                </div>
+                <div className={`text-xs font-medium px-2 py-1 rounded-full ${formData.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {formData.type === 'income' ? 'Income' : 'Expense'}
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Type Toggle */}
@@ -234,8 +295,8 @@ const TransactionForm = ({ transaction, onSubmit, onClose }) => {
         <div className="px-6 pb-6">
           <p className="text-xs text-center text-gray-400">
             {formData.type === 'income' 
-              ? '✨ Adding income will increase your total balance' 
-              : '⚠️ Adding expense will decrease your total balance'}
+              ? 'Adding income will increase your total balance' 
+              : 'Adding expense will decrease your total balance'}
           </p>
         </div>
       </div>
